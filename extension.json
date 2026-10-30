@@ -79,21 +79,7 @@
         "mobile"
       ],
       "dependencies": [
-        "mobile.search.api"
-      ],
-			"remoteBasePath": "/w/extensions/UespCustomCode"
-    },
-    "ext.UespCustomCode.mobile.referencesGateway": {
-      "position": "top",
-      "scripts": [
-        "modules/uespMobileReferencesGateway.js"
-      ],
-      "targets": [
-        "desktop",
-        "mobile"
-      ],
-      "dependencies": [
-        "mobile.references.gateway"
+        "mobile.startup"
       ],
 			"remoteBasePath": "/w/extensions/UespCustomCode"
     },

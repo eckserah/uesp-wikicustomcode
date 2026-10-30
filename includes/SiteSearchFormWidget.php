@@ -3,10 +3,10 @@
  * Overload the search form widget with the power search box for MW 1.29 and above.
  */
 
-require_once "$IP/includes/widget/search/SearchFormWidget.php";
+require_once "$IP/includes/search/searchwidgets/SearchFormWidget.php";
 
 
-class SiteSearchFormWidget extends MediaWiki\Widget\Search\SearchFormWidget
+class SiteSearchFormWidget extends MediaWiki\Search\SearchWidgets\SearchFormWidget
 {
 	/** @var bool */
 	public $searchTalkPages;

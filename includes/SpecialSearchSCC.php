@@ -8,12 +8,12 @@ require_once "SiteSearchFormWidget.php";
 
 
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Widget\Search\BasicSearchResultSetWidget;
-use MediaWiki\Widget\Search\FullSearchResultWidget;
-use MediaWiki\Widget\Search\InterwikiSearchResultWidget;
-use MediaWiki\Widget\Search\InterwikiSearchResultSetWidget;
-use MediaWiki\Widget\Search\SimpleSearchResultWidget;
-use MediaWiki\Widget\Search\SimpleSearchResultSetWidget;
+use MediaWiki\Search\SearchWidgets\BasicSearchResultSetWidget;
+use MediaWiki\Search\SearchWidgets\FullSearchResultWidget;
+use MediaWiki\Search\SearchWidgets\InterwikiSearchResultWidget;
+use MediaWiki\Search\SearchWidgets\InterwikiSearchResultSetWidget;
+use MediaWiki\Search\SearchWidgets\SimpleSearchResultWidget;
+use MediaWiki\Search\SearchWidgets\SimpleSearchResultSetWidget;
 
 
 class SpecialSearchSCC extends SpecialSearch
@@ -102,11 +102,15 @@ class SpecialSearchSCC extends SpecialSearch
 		if ($this->searchEngineType !== null) {
 			$this->setExtraParam('srbackend', $this->searchEngineType);
 		}
+		
+		$services = \MediaWiki\MediaWikiServices::getInstance();
+		$hookContainer = $services->getHookContainer();
 
 		$out = $this->getOutput();
 		$formWidget = new SiteSearchFormWidget(	//For UESP custom search options
 			$this,
 			$this->searchConfig,
+			$hookContainer,
 			$this->getSearchProfiles()
 		);
 
@@ -140,7 +144,9 @@ class SpecialSearchSCC extends SpecialSearch
 		$search->setLimitOffset($this->limit, $this->offset);
 		$search->setNamespaces($this->namespaces);
 		$search->prefix = $this->mPrefix;
-		$term = $search->transformSearchTerm($term);
+		if ( method_exists( $searchEngine, 'transformSearchTerm' ) ) {
+			$term = $search->transformSearchTerm($term);
+		}
 
 		Hooks::run('SpecialSearchSetupEngine', [$this, $this->profile, $search]);
 		if (!Hooks::run('SpecialSearchResultsPrepend', [$this, $out, $term])) {
@@ -193,7 +199,7 @@ class SpecialSearchSCC extends SpecialSearch
 
 		// did you mean... suggestions
 		if ($textMatches) {
-			$dymWidget = new MediaWiki\Widget\Search\DidYouMeanWidget($this);
+			$dymWidget = new MediaWiki\Search\SearchWidgets\DidYouMeanWidget($this);
 			$out->addHTML($dymWidget->render($term, $textMatches));
 		}
 
@@ -241,7 +247,7 @@ class SpecialSearchSCC extends SpecialSearch
 		// Although $num might be 0 there can still be secondary or inline
 		// results to display.
 		$linkRenderer = $this->getLinkRenderer();
-		$mainResultWidget = new FullSearchResultWidget($this, $linkRenderer);
+		$mainResultWidget = new FullSearchResultWidget($this, $linkRenderer, $hookContainer);
 
 		if ($search->getFeatureData('enable-new-crossproject-page')) {
 			$sidebarResultWidget = new InterwikiSearchResultWidget($this, $linkRenderer);

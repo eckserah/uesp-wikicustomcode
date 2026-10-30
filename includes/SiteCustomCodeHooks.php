@@ -44,6 +44,13 @@ class SiteCustomCodeHooks
 			]);
 		}
 	}
+	
+	public static function onSkinMinervaOptionsInit(Skin $skin, $options)
+	{
+		$options->setMultiple([
+			'mobileOptionsLink' => false,
+		]);
+	}
 
 	/**
 	 * SpecialPage_initList hook
@@ -124,9 +131,6 @@ $extra";
 	public static function onSpecialPageBeforeExecute(SpecialPage $special, $subPage)
 	{
 		global $egAnonBlockedSpecialPages;
-		if ( $special->getRequest() instanceof FauxRequest ) {
-			return true;
-		}
 		//die($special->getPageTitle()->getText());
 		$user = $special->getUser();
 		$title = $special->getPageTitle();
@@ -332,7 +336,8 @@ $extra";
 
 		if (!$hooked) {
 			//$wgHooks['SpecialPage_initList'][] = 'SiteCustomCodeHooks::efSiteMobilePrefsSpecialPageInit';
-			$wgHooks['RequestContextCreateSkinMobile'][] = 'SiteCustomCodeHooks::efSiteRequestContextCreateSkinMobile';
+			//$wgHooks['RequestContextCreateSkinMobile'][] = 'SiteCustomCodeHooks::efSiteRequestContextCreateSkinMobile';
+			$wgHooks['SkinMinervaOptionsInit'][] = 'SiteCustomCodeHooks::onSkinMinervaOptionsInit';
 			$hooked = true;
 		}
 	}
@@ -345,9 +350,9 @@ $extra";
 		self::SetupUespGoogleTags($out);
 		$out->addModules(['ext.UespCustomCode.search.suggest', 'ext.UespCustomCode.customTabs']);
 		
-		if ($out->getRequest()->getVal('action') == "edit" || $out->getRequest()->getVal('action') == "submit") {
+		/*if ($out->getRequest()->getVal('action') == "edit" || $out->getRequest()->getVal('action') == "submit") {
 			$out->addModules('ext.UespCustomCode.codeMirror');
-		}
+		}*/
 		
 		if ($out->getTitle()->getRootTitle() == "Special:UploadWizard") {
 			$out->addModules(['ext.UespCustomCode.uploadWizard', 'ext.uploadWizardUesp']);
@@ -363,7 +368,7 @@ $extra";
 		}
 		
 		if ($out->getSkin()->getSkinName() == "minerva") {
-			$out->addModules(['mobile.site.styles', 'ext.UespCustomCode.mobile.search.searchGateway', 'ext.UespCustomCode.mobile.referencesGateway']);
+			$out->addModules(['mobile.site.styles', 'ext.UespCustomCode.mobile.search.searchGateway']);
 		}
 		
 		// include css for custom fonts automatically.
